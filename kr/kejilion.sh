@@ -1206,7 +1206,7 @@ iptables_panel() {
 				  send_stats "允许PING"
 				  ;;
 			  12)
-				  # 핑 비활성화
+				  # 禁用 PING
 				  iptables -D INPUT -p icmp --icmp-type echo-request -j ACCEPT 2>/dev/null
 				  iptables -D OUTPUT -p icmp --icmp-type echo-reply -j ACCEPT 2>/dev/null
 				  iptables-save > /etc/iptables/rules.v4
@@ -1265,7 +1265,7 @@ add_swap() {
 	# 确保 /swapfile 不再被使用
 	swapoff /swapfile
 
-	# 이전 /swap 파일 삭제
+	# 删除旧的 /swapfile
 	rm -f /swapfile
 
 	# 创建新的 swap 分区
@@ -1383,7 +1383,7 @@ update_docker_compose_with_db_creds() {
 
 
 auto_optimize_dns() {
-	# 국가 코드(예: CN, US 등)를 가져옵니다.
+	# 获取国家代码（如 CN、US 等）
 	local country=$(curl -s ipinfo.io/country)
 
 	# 根据国家设置 DNS
@@ -1438,7 +1438,7 @@ install_ldnmp() {
 	  sleep 2
 
 	  clear
-	  echo "LDNMP 환경이 설치되었습니다"
+	  echo "LDNMP环境安装完毕"
 	  echo "------------------------"
 	  ldnmp_v
 
@@ -1495,7 +1495,7 @@ install_ssltls_text() {
 	echo -e "${gl_huang}$yuming 私钥信息${gl_bai}"
 	cat /etc/letsencrypt/live/$yuming/privkey.pem
 	echo ""
-	echo -e "${gl_huang}인증서 저장 경로${gl_bai}"
+	echo -e "${gl_huang}证书存放路径${gl_bai}"
 	echo "公钥: /etc/letsencrypt/live/$yuming/fullchain.pem"
 	echo "私钥: /etc/letsencrypt/live/$yuming/privkey.pem"
 	echo ""
@@ -1506,7 +1506,7 @@ install_ssltls_text() {
 
 
 add_ssl() {
-echo -e "${gl_huang}SSL 인증서를 빠르게 신청하고 만료되기 전에 자동으로 갱신하세요.${gl_bai}"
+echo -e "${gl_huang}快速申请SSL证书，过期前自动续签${gl_bai}"
 yuming="${1:-}"
 if [ -z "$yuming" ]; then
 	add_yuming
@@ -1562,36 +1562,36 @@ certs_status() {
 
 	local file_path="/etc/letsencrypt/live/$yuming/fullchain.pem"
 	if [ -f "$file_path" ]; then
-		send_stats "도메인 이름 인증서 신청이 성공했습니다."
+		send_stats "域名证书申请成功"
 	else
-		send_stats "도메인 이름 인증서 신청 실패"
+		send_stats "域名证书申请失败"
 		if [ "${KJ_WEB_NONINTERACTIVE:-0}" = "1" ] &&
 			! kpanel_web_interactive; then
 			echo "KPANEL_PROGRESS 100 域名证书申请失败，请检查 DNS、80/443 端口和签发限额"
 			return 1
 		fi
 		echo -e "${gl_hong}注意: ${gl_bai}证书申请失败，请检查以下可能原因并重试："
-		echo -e "1. 도메인 이름이 잘못 입력되었습니다. ➠ 도메인 이름이 올바르게 입력되었는지 확인하세요."
-		echo -e "2. DNS 확인 문제 ➠ 도메인 이름이 서버 IP로 올바르게 확인되었는지 확인"
+		echo -e "1. 域名拼写错误 ➠ 请检查域名输入是否正确"
+		echo -e "2. DNS解析问题 ➠ 确认域名已正确解析到本服务器IP"
 		echo -e "3. 网络配置问题 ➠ 如使用Cloudflare Warp等虚拟网络请暂时关闭"
-		echo -e "4. 방화벽 제한 사항 ➠ 포트 80/443이 열려 있는지 확인하고 접근이 가능한지 확인하세요."
+		echo -e "4. 防火墙限制 ➠ 检查80/443端口是否开放，确保验证可访问"
 		echo -e "5. 申请次数超限 ➠ Let's Encrypt有每周限额(5次/域名/周)"
 		echo -e "6. 国内备案限制 ➠ 中国大陆环境请确认域名是否备案"
 		echo "------------------------"
 		echo "1. 重新申请        2. 导入已有证书        0. 退出"
 		echo "------------------------"
-		read -e -p "선택사항을 입력하세요:" sub_choice
+		read -e -p "请输入你的选择: " sub_choice
 		case $sub_choice in
 	  	  1)
 	  	  	send_stats "重新申请"
-		  	echo "다시 배포해 보세요.$webname"
+		  	echo "请再次尝试部署 $webname"
 		  	add_yuming
 		  	install_ssltls
 		  	certs_status
 
 	  		  ;;
 	  	  2)
-	  	  	send_stats "기존 인증서 가져오기"
+	  	  	send_stats "导入已有证书"
 
 			# 定义文件路径
 			local cert_file="/home/web/certs/${yuming}_cert.pem"
@@ -1599,7 +1599,7 @@ certs_status() {
 
 			mkdir -p /home/web/certs
 
-			# 1. 인증서를 입력합니다(ECC 및 RSA 인증서 모두 BEGIN CERTIFICATE로 시작함).
+			# 1. 输入证书 (ECC 和 RSA 证书开头都是 BEGIN CERTIFICATE)
 			echo "请粘贴 证书 (CRT/PEM) 内容 (按两次回车结束)："
 			local cert_content=""
 			while IFS= read -r line; do
@@ -1607,7 +1607,7 @@ certs_status() {
 				cert_content+="${line}"$'\n'
 			done
 
-			# 2. 개인 키를 입력하세요. (RSA, ECC, PKCS#8과 호환 가능)
+			# 2. 输入私钥 (兼容 RSA, ECC, PKCS#8)
 			echo "请粘贴 证书私钥 (Private Key) 内容 (按两次回车结束)："
 			local key_content=""
 			while IFS= read -r line; do
@@ -1616,7 +1616,7 @@ certs_status() {
 			done
 
 			# 3. 智能校验
-			# 통과하려면 "BEGIN CERTIFICATE" 및 "PRIVATE KEY"만 포함하면 됩니다.
+			# 只要包含 "BEGIN CERTIFICATE" 和 "PRIVATE KEY" 即可通过
 			if [[ "$cert_content" == *"-----BEGIN CERTIFICATE-----"* && "$key_content" == *"PRIVATE KEY-----"* ]]; then
 				echo -n "$cert_content" > "$cert_file"
 				echo -n "$key_content" > "$key_file"
@@ -1624,7 +1624,7 @@ certs_status() {
 				chmod 644 "$cert_file"
 				chmod 600 "$key_file"
 
-				# 현재 인증서 유형을 식별하고 표시합니다.
+				# 识别当前证书类型并显示
 				if [[ "$key_content" == *"EC PRIVATE KEY"* ]]; then
 					echo "检测到 ECC 证书已成功保存。"
 				else
@@ -1649,7 +1649,7 @@ repeat_add_yuming() {
 if [ -e /home/web/conf.d/$yuming.conf ]; then
   send_stats "域名重复使用"
   if [ "${KJ_WEB_NONINTERACTIVE:-0}" = "1" ]; then
-	echo "KPANEL_PROGRESS 100 도메인 이름이 이미 존재하므로 kejilion.sh 또는 KPanel의 기존 제품 덮어쓰기를 거부합니다."
+	echo "KPANEL_PROGRESS 100 域名已存在，拒绝覆盖 kejilion.sh 或 KPanel 的现有产物"
 	return 1
   fi
   web_del "${yuming}" > /dev/null 2>&1
@@ -1663,14 +1663,14 @@ add_yuming() {
 		  yuming="${KJ_WEB_DOMAIN:-}"
 		  if [ -z "$yuming" ] || [ ${#yuming} -gt 253 ] ||
 			  ! printf '%s' "$yuming" | grep -Eq '^[A-Za-z0-9]([A-Za-z0-9.-]{0,251}[A-Za-z0-9])?$'; then
-			  echo "KPANEL_PROGRESS 100 KJ_WEB_DOMAIN은 유효한 도메인 이름이 아닙니다."
+			  echo "KPANEL_PROGRESS 100 KJ_WEB_DOMAIN 不是有效的域名"
 			  return 1
 		  fi
 		  return 0
 	  fi
 	  ip_address
 	  echo -e "先将域名解析到本机IP: ${gl_huang}$ipv4_address  $ipv6_address${gl_bai}"
-	  read -e -p "귀하의 IP 또는 확인된 도메인 이름을 입력하십시오:" yuming
+	  read -e -p "请输入你的IP或者解析过的域名: " yuming
 }
 
 
@@ -1828,7 +1828,7 @@ cf_purge_cache() {
 	read -e -p "需要清理 Cloudflare 的缓存吗？（y/n）: " answer
 	if [[ "$answer" == "y" ]]; then
 	  echo "CF信息保存在$CONFIG_FILE，可以后期修改CF信息"
-	  read -e -p "API_TOKEN을 입력하세요:" API_TOKEN
+	  read -e -p "请输入你的 API_TOKEN: " API_TOKEN
 	  read -e -p "请输入你的CF用户名: " EMAIL
 	  read -e -p "请输入 zone_id（多个用空格分隔）: " -a ZONE_IDS
 
@@ -1853,7 +1853,7 @@ cf_purge_cache() {
 
 
 web_cache() {
-  send_stats "사이트 캐시 지우기"
+  send_stats "清理站点缓存"
   cf_purge_cache
   cd /home/web && docker compose restart
 }
@@ -1879,7 +1879,7 @@ web_del() {
 	for yuming in "${yuming_list[@]}"; do
 		if [ -z "$yuming" ] || [ "${#yuming}" -gt 253 ] ||
 			! printf '%s' "$yuming" | grep -Eq '^[A-Za-z0-9]([A-Za-z0-9.-]{0,251}[A-Za-z0-9])?$'; then
-			echo "잘못된 도메인 이름, 삭제가 거부됨:$yuming"
+			echo "无效域名，拒绝删除: $yuming"
 			action_status=1
 			continue
 		fi
@@ -1978,7 +1978,7 @@ check_waf_status() {
 
 check_cf_mode() {
 	if [ -f "/etc/fail2ban/action.d/cloudflare-docker.conf" ]; then
-		CFmessage="cf 모드가 켜져 있습니다"
+		CFmessage=" cf模式已开启"
 	else
 		CFmessage=""
 	fi
@@ -2108,7 +2108,7 @@ nginx_br() {
 		sed -i '/brotli_types/,+6 s/^\(\s*\)#\s*/\1/' /home/web/nginx.conf
 
 	elif [ "$mode" == "off" ]; then
-		# Brotli 닫기: 댓글 추가
+		# 关闭 Brotli：加上注释
 		sed -i 's|^load_module /etc/nginx/modules/ngx_http_brotli_filter_module.so;|# load_module /etc/nginx/modules/ngx_http_brotli_filter_module.so;|' /home/web/nginx.conf > /dev/null 2>&1
 		sed -i 's|^load_module /etc/nginx/modules/ngx_http_brotli_static_module.so;|# load_module /etc/nginx/modules/ngx_http_brotli_static_module.so;|' /home/web/nginx.conf > /dev/null 2>&1
 
@@ -2181,7 +2181,7 @@ nginx_zstd() {
 
 
 	else
-		echo "잘못된 인수: 'on' 또는 'off'를 사용하세요."
+		echo "无效的参数：使用 'on' 或 'off'"
 		return 1
 	fi
 
@@ -2212,7 +2212,7 @@ nginx_gzip() {
 	elif [ "$mode" == "off" ]; then
 		sed -i 's|^\(\s*\)gzip on;|\1# gzip on;|' /home/web/nginx.conf > /dev/null 2>&1
 	else
-		echo "잘못된 인수: 'on' 또는 'off'를 사용하세요."
+		echo "无效的参数：使用 'on' 或 'off'"
 		return 1
 	fi
 
@@ -2359,7 +2359,7 @@ web_security() {
 					  echo "--------------"
 					  echo "获取CF参数: "
 					  echo -e "到cf后台右上角我的个人资料，选择左侧API令牌，获取${gl_huang}Global API Key${gl_bai}"
-					  echo -e "到cf后台域名概要页面右下方获取${gl_huang}지역 ID${gl_bai}"
+					  echo -e "到cf后台域名概要页面右下方获取${gl_huang}区域ID${gl_bai}"
 					  echo "https://dash.cloudflare.com/login"
 					  echo "--------------"
 					  read -e -p "输入CF的账号: " cfuser
